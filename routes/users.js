@@ -1,6 +1,55 @@
 const User = require("../models/User")
 const router = require("express").Router();
 const bcrypt = require("bcryptjs")
+const jwt = require('jsonwebtoken')
+
+const createToken = (_id) => {
+    return jwt.sign({ _id }, process.env.SECRET)
+}
+
+router.post("/register", async (req,res) => {
+    const { firstname, lastname, email, password } = req.body
+    try{ 
+        const user = await User.signup(firstname, lastname, email, password)
+        const token = createToken(user._id)
+        const isAdmin = user.isAdmin
+        res.status(200).json({ firstname, lastname, isAdmin, email, token })
+    } catch (err){
+        res.status(500).json({err: err.message});
+    }
+});
+router.post("/login", async(req,res) =>{
+    const { email, password } = req.body
+    try{
+        const user = await User.login(email, password)
+        const token = createToken(user._id)
+        const firstname = user.firstname
+        const lastname = user.lastname
+        const isAdmin = user.isAdmin
+        res.status(200).json({ firstname, lastname, isAdmin, email, token })
+    } catch (err) {
+        res.status(500).json({err: err.message});
+    }
+})
+router.get("/getAllusers", async(req,res) =>{
+    try{
+        const allUsers = await User.find({});
+        return res.status(200).json(allUsers);
+    }catch(err){
+        return res.status(400).json({err: err.message})
+    }
+})
+router.delete('/deleteAllUsers', async (req, res) => {
+    try {
+        const users = await User.deleteMany({})
+        return res.status(200).json(users)
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({ error: error.message })
+    }
+})
+
+
 router.put("/:id", async(req,res) => {
     if(req.body.userId === req.params.id || req.body.isAdmin){
     if (req.body.password){
