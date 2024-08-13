@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema({
         min:6,
         max:20
      },
+     gender: {
+      type: String,
+      required: true,
+      enum: ["male", "female"],
+   },
      profilePicture:{
         type:String,
         default:""
