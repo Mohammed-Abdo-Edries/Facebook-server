@@ -1,27 +1,27 @@
-const express = require ("express");
-const mongoose = require ("mongoose");
-// const http = require('http');
-const helmet = require ("helmet");
-const morgan = require ("morgan");
-require ("dotenv").config();
-const userRouter = require ("./routes/users");
-const authRoute = require ("./routes/auth");
-const postRoute = require ("./routes/posts");
-// const cors = require("cors")
-const cookieParser = rerquire ("cookie-parser");
-const app = express();
-import { app2, server } from "./socket";
-// app.use(cors())
-// const server = http.createServer(app);
-// const io = new Server(server);
+import express from "express";
+import mongoose from "mongoose";
+import helmet from "helmet";
+import morgan from "morgan";
+import dotenv from "dotenv";
+import userRoutes from "./routes/users.js";
+import postRoutes from"./routes/posts.js";
+import messageRoutes from"./routes/message.js";
+import { app } from "./socket.js";
+import cookieParser from "cookie-parser";
+import path from "path";
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(helmet());
+app.use(cookieParser());
+
 app.use(morgan("common"));
-app.use("/api/users", userRouter)
-app.use("/api/auth", authRoute)
-app.use("/api/posts", postRoute)
+app.use("/api/users", userRoutes)
+app.use("/api/posts", postRoutes)
+app.use("/api/messages", messageRoutes)
 mongoose.set("strictQuery", false)
+dotenv.config();
+const __dirname = path.resolve();
 
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {

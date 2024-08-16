@@ -1,27 +1,27 @@
-const mongoose = require("mongoose")
-const validator = require("validator")
-const bcrypt = require("bcryptjs")
+import mongoose from "mongoose";
+import validator from "validator";
+import bcrypt from "bcryptjs"
 
 const userSchema = new mongoose.Schema({
      firstname:{
         type:String,
         required:true,
         min:3,
-        max:20,
-        unique:true
+        max:20
+      //   unique:true
      },
      lastname:{
         type:String,
         required:true,
         min:3,
-        max:20,
-        unique:true
+        max:20
+      //   unique:true
      },
      email:{
         type: String,
         required:true,
-        max:50,
-        unique:true,
+        max:50
+      //   unique:true,
      },
      password:{
         type:String,
@@ -29,11 +29,11 @@ const userSchema = new mongoose.Schema({
         min:6,
         max:20
      },
-     gender: {
-      type: String,
-      required: true,
-      enum: ["male", "female"],
-   },
+   //   gender: {
+   //    type: String,
+   //    required: true,
+   //    enum: ["male", "female"],
+   // },
      profilePicture:{
         type:String,
         default:""
@@ -108,4 +108,5 @@ userSchema.statics.login = async function (email, password) {
    return user
 }
 
-module.exports = mongoose.model("User1", userSchema)
+const User = mongoose.model("User1", userSchema)
+export default User;

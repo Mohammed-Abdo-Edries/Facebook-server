@@ -1,5 +1,6 @@
-const router = require("express").Router();
-const Post = require("../models/Post")
+import express from "express"
+import Post from "../models/Post.js"
+const router = express.Router();
 
 router.post("/", async(req,res) => {
     const newPost = new Post(req.body);
@@ -73,4 +74,4 @@ router.get("/timeline/all", async(req,res) =>{
         res.status(500).json({err: err.message});
     }
 })
-module.exports = router;
+export default router;
