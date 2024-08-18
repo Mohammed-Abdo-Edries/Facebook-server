@@ -1,15 +1,15 @@
-import express from "express";
-import mongoose from "mongoose";
-import helmet from "helmet";
-import morgan from "morgan";
-import dotenv from "dotenv";
-import userRoutes from "./routes/users.js";
-import postRoutes from"./routes/posts.js";
-import messageRoutes from"./routes/message.js";
-import { app } from "./socket.js";
-import cookieParser from "cookie-parser";
-import path from "path";
-
+const express = require ("express");
+const mongoose = require ("mongoose");
+const helmet = require ("helmet");
+const morgan = require ("morgan");
+const dotenv = require ("dotenv");
+const userRoutes = require ("./routes/users.js");
+const postRoutes = require("./routes/posts.js");
+// const messageRoutes = require ("./routes/message.js");
+// import { app } from "./socket.js";
+const cookieParser = require ("cookie-parser");
+const path = require ("path");
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(helmet());
@@ -18,10 +18,10 @@ app.use(cookieParser());
 app.use(morgan("common"));
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
-app.use("/api/messages", messageRoutes)
+// app.use("/api/messages", messageRoutes)
 mongoose.set("strictQuery", false)
 dotenv.config();
-const __dirname = path.resolve();
+// const __dirname = path.resolve();
 
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
@@ -33,5 +33,6 @@ mongoose.connect(process.env.MONGO_URI)
     console.log(error) 
 })
 app.get("/", (req,res)=>{
-    res.sendFile(__dirname + '/index.html')
+    res.send("welcome")
 })
+// mongoose.connection.dropDatabase("User1")

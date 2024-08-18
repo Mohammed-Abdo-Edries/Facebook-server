@@ -4,7 +4,7 @@ import express from "express";
 
 import { getReceiverSocketId, io } from "../socket.js";
 const router = express.Router();
-
+ 
 router.post("/send/:id", async (req, res) => {
 	try {
 		const { message } = req.body;

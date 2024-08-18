@@ -1,7 +1,7 @@
-import User from "../models/User.js";
-import express from "express";
-import bcrypt from "bcryptjs";
-import jwt from 'jsonwebtoken';
+const User = require ("../models/User.js");
+const express = require ("express");
+const bcrypt = require ("bcryptjs");
+const jwt = require ('jsonwebtoken');
 const router = express.Router();
 
 const createToken = (_id) => {
@@ -133,4 +133,5 @@ router.put("/:id/unfollow", async(req,res) => {
     }
 })
 
-export default router;
+// export default router;
+module.exports = router
