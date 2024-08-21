@@ -1,15 +1,18 @@
-import Conversation from "../models/conversation.js";
-import Message from "../models/message.js";
+import Conversation from "../models/Conversation.js";
+import Message from "../models/Message.js";
 import express from "express";
-
-import { getReceiverSocketId, io } from "../socket.js";
+import {getReceiverSocketId,io} from "../socket.js";
+import protectRoute from "../middleware/protectRoute.js";
 const router = express.Router();
  
-router.post("/send/:id", async (req, res) => {
+router.post("/send/:id", protectRoute, async (req, res) => {
 	try {
 		const { message } = req.body;
+		// console.log(message)
 		const { id: receiverId } = req.params;
+		// console.log(receiverId)
 		const senderId = req.user._id;
+		// console.log(senderId)
 
 		let conversation = await Conversation.findOne({
 			participants: { $all: [senderId, receiverId] },
@@ -40,17 +43,25 @@ router.post("/send/:id", async (req, res) => {
 		// SOCKET IO FUNCTIONALITY WILL GO HERE
 		const receiverSocketId = getReceiverSocketId(receiverId);
 		if (receiverSocketId) {
-			// io.to(<socket_id>).emit() used to send events to specific client
 			io.to(receiverSocketId).emit("newMessage", newMessage);
 		}
 
 		res.status(201).json(newMessage);
 	} catch (error) {
 		console.log("Error in sendMessage controller: ", error.message);
-		res.status(500).json({ error: "Internal server error" });
+		res.status(500).json({ error: "Internal server error:" });
 	}
 });
 
+router.get("/getAllMessages", async(req,res) => {
+	try{
+		const allMessages = await Message.find({});
+        return res.status(200).json(allMessages);
+	} catch(error){
+		console.log(error)
+		res.status(500).json(error)
+	}
+})
 router.get("/:id", async (req, res) => {
 	try {
 		const { id: userToChatId } = req.params;
@@ -69,5 +80,6 @@ router.get("/:id", async (req, res) => {
 		console.log("Error in getMessages controller: ", error.message);
 		res.status(500).json({ error: "Internal server error" });
 	}
-});
+}); 
+// module.exports = router
 export default router;
