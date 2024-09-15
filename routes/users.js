@@ -14,7 +14,8 @@ router.post("/register", async (req,res) => {
         const user = await User.signup(firstname, lastname, email, password)
         const token = createToken(user._id)
         const isAdmin = user.isAdmin
-        res.status(200).json({ firstname, lastname, isAdmin, email, token })
+        const userId = user._id
+        res.status(200).json({ firstname, lastname, isAdmin, email, token, userId })
     } catch (err){
         res.status(500).json({err: err.message});
     }
@@ -24,10 +25,11 @@ router.post("/login", async(req,res) =>{
     try{
         const user = await User.login(email, password)
         const token = createToken(user._id)
+        const userId = user._id
         const firstname = user.firstname
         const lastname = user.lastname
         const isAdmin = user.isAdmin
-        res.status(200).json({ firstname, lastname, isAdmin, email, token })
+        res.status(200).json({ firstname, lastname, isAdmin, email, token,userId })
     } catch (err) {
         res.status(500).json({err: err.message});
     }
@@ -122,9 +124,7 @@ router.put("/:id/unfollow", async(req,res) => {
                 await user.updateOne({$pull:{followers:req.body.userId}});
                 await currentUser.updateOne({$pull:{followings:req.params.id}});
                 res.status(200).json("user has been unfollowed")
-            } else {
-                res.status(403).json("user has been unfollowed")
-            }
+            } 
         }catch(err){
             res.status(500).json({err: err.message})
         }
@@ -132,6 +132,18 @@ router.put("/:id/unfollow", async(req,res) => {
         res.status(403).json("you cant unfollow yourself")
     }
 })
-
+router.get("/:id/friends", async (req, res) => {
+    const user = await User.findById(req.params.id);
+    if(user.followers || user.followings) {
+        try{
+            const {_id,firstname,lastname,email,profilePicture,coverPicture,isAdmin,password,id,...other} = user._doc
+            res.status(200).json(other)
+        } catch (err){
+            res.status(500).json(err)
+        }
+    } else if(!user.followers || user.followings) {
+        res.status(200).json("you have no friends")
+    }
+})
 export default router;
 // module.exports = router
