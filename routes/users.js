@@ -101,9 +101,9 @@ router.put("/:id/follow", async(req,res) => {
         try{
             const user = await User.findById(req.params.id);
             const currentUser = await User.findById(req.body.userId);
-            if(!user.followers.includes(req.body.userId)){
-                await user.updateOne({$push:{followers:req.body.userId}});
-                await currentUser.updateOne({$push:{followings:req.params.id}});
+            if(!user.friends.includes(req.body.userId)){
+                await user.updateOne({$push:{friends:req.body.userId}});
+                await currentUser.updateOne({$push:{friends:req.params.id}});
                 res.status(200).json("user has been followed")
             } else {
                 res.status(403).json("you dont follow this user")
@@ -120,9 +120,9 @@ router.put("/:id/unfollow", async(req,res) => {
         try{
             const user = await User.findById(req.params.id);
             const currentUser = await User.findById(req.body.userId);
-            if(!user.followers.includes(req.body.userId)){
-                await user.updateOne({$pull:{followers:req.body.userId}});
-                await currentUser.updateOne({$pull:{followings:req.params.id}});
+            if(!user.friends.includes(req.body.userId)){
+                await user.updateOne({$pull:{friends:req.body.userId}});
+                await currentUser.updateOne({$pull:{friends:req.params.id}});
                 res.status(200).json("user has been unfollowed")
             } 
         }catch(err){
@@ -134,14 +134,15 @@ router.put("/:id/unfollow", async(req,res) => {
 })
 router.get("/:id/friends", async (req, res) => {
     const user = await User.findById(req.params.id);
-    if(user.followers || user.followings) {
+    if(user.friends) {
         try{
-            const {_id,firstname,lastname,email,profilePicture,coverPicture,isAdmin,password,id,...other} = user._doc
-            res.status(200).json(other)
+            // const {_id,firstname,lastname,email,profilePicture,coverPicture,isAdmin,password,id,...other} = user._doc
+            const friends = user.friends
+            res.status(200).json(friends)
         } catch (err){
             res.status(500).json(err)
         }
-    } else if(!user.followers || user.followings) {
+    } else if(!user.friends) {
         res.status(200).json("you have no friends")
     }
 })
