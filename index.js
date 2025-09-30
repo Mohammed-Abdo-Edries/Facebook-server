@@ -17,12 +17,11 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(morgan("common"));
 
-app.use("/api/users", userRoutes)
-app.use("/api/posts", postRoutes)
-app.use("/api/messages", messageRoutes)
+app.use("/users", userRoutes)
+app.use("/posts", postRoutes)
+app.use("/messages", messageRoutes)
 mongoose.set("strictQuery", false)
 dotenv.config();
-// const __dirname = path.resolve();
 
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
@@ -33,4 +32,3 @@ mongoose.connect(process.env.MONGO_URI)
 .catch((error) =>{
     console.log(error) 
 })
-// mongoose.connection.dropDatabase("User1")
