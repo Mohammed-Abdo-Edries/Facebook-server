@@ -8,6 +8,20 @@ const createToken = (_id) => {
     return jwt.sign({ _id }, process.env.SECRET)
 }
 
+router.post("/login", async(req,res) =>{
+    const { email, password } = req.body
+    console.log(email,password);
+    try{
+        const user = await User.login(email, password)
+        const token = createToken(user._id)
+        const firstname = user.firstname
+        const lastname = user.lastname
+        const isAdmin = user.isAdmin
+        res.status(200).json({ firstname, lastname, isAdmin, email, token })
+    } catch (err) {
+        res.status(500).json({err: err.message});
+    }
+})
 router.post("/register", async (req,res) => {
     const { firstname, lastname, email, password } = req.body
     try{ 
@@ -20,21 +34,6 @@ router.post("/register", async (req,res) => {
         res.status(500).json({err: err.message});
     }
 });
-router.post("/login", async(req,res) =>{
-    const { email, password } = req.body
-    console.log(email,password);
-    try{
-        const user = await User.login(email, password)
-        const token = createToken(user._id)
-        const userId = user._id
-        const firstname = user.firstname
-        const lastname = user.lastname
-        const isAdmin = user.isAdmin
-        res.status(200).json({ firstname, lastname, isAdmin, email, token,userId })
-    } catch (err) {
-        res.status(500).json({err: err.message});
-    }
-})
 router.get("/getAllusers", async(req,res) =>{
     try{
         const allUsers = await User.find({});
