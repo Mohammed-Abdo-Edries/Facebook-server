@@ -1,5 +1,5 @@
 import Conversation from "../models/Conversation.js";
-import Message from "../models/MessageTmp.js";
+import Message from "../models/Message.js";
 import express from "express";
 import {getReceiverSocketId,io} from "../socket.js";
 import protectRoute from "../middleware/protectRoute.js";
