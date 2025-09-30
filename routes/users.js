@@ -13,6 +13,7 @@ router.post("/login", async(req,res) =>{
     console.log(email,password);
     try{
         const user = await User.login(email, password)
+        console.log(user);
         const token = createToken(user._id)
         const firstname = user.firstname
         const lastname = user.lastname
