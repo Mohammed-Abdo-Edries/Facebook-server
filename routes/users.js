@@ -18,7 +18,8 @@ router.post("/login", async(req,res) =>{
         const firstname = user.firstname
         const lastname = user.lastname
         const isAdmin = user.isAdmin
-        res.status(200).json({ firstname, lastname, isAdmin, email, token })
+        console.log(user._id);
+        res.status(200).json({ firstname, lastname, isAdmin, email, token,userId: user._id,friends: user.friends })
     } catch (err) {
         console.log(email,password );
         console.log(err.message);
@@ -32,7 +33,7 @@ router.post("/register", async (req,res) => {
         const token = createToken(user._id)
         const isAdmin = user.isAdmin
         const userId = user._id
-        res.status(200).json({ firstname, lastname, isAdmin, email, token, userId })
+        res.status(200).json({ firstname, lastname, isAdmin, email, token, userId: user._id })
     } catch (err){
         res.status(400).json({err: err.message});
     }
@@ -136,18 +137,29 @@ router.put("/:id/unfollow", async(req,res) => {
     }
 })
 router.get("/:id/friends", async (req, res) => {
-    const user = await User.findById(req.params.id);
-    if(user.friends) {
-        try{
-            // const {_id,firstname,lastname,email,profilePicture,coverPicture,isAdmin,password,id,...other} = user._doc
-            const friends = user.friends
-            res.status(200).json(friends)
-        } catch (err){
-            res.status(400).json(err)
-        }
-    } else if(!user.friends) {
-        res.status(200).json("you have no friends")
+  try {
+    const user = await User.findById(req.params.id)
+    if (!user) {
+        return res.status(404).json({ error: "User not found" });
     }
-})
+    if (!user.friends || user.friends.length === 0) {
+        return res.status(200).json([]);
+    }
+    const friendDetails = await Promise.all(
+         user.friends.map(async (friendId) => {
+             const friend = await User.findById(friendId).select(
+                 "firstname lastname email userId"
+                );
+                return friend;
+            })
+        );
+        console.log("Populated friends:", friendDetails);
+    res.status(200).json(friendDetails);
+  } catch (err) {
+    console.error("Error fetching friends:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 export default router;
 // module.exports = router

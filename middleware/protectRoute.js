@@ -1,34 +1,45 @@
+// protectRoute.js
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import User from "../models/User.js"; // Assuming you import User model
 
 const protectRoute = async (req, res, next) => {
-	try {
-		const token = req.body.token;
-		// const token1 = req.Authorization;
-		// console.log(token1)
-		if (!token) {
-			return res.status(401).json({ error: "Unauthorized - No Token Provided" });
-		}
+    try {
+        // 1. Log the entire headers object
+        console.log("Headers:", req.headers); 
 
-		const decoded = jwt.verify(token, process.env.SECRET);
+        let token;
+        // Check for the token in the Authorization header
+        if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+            token = req.headers.authorization.split(" ")[1];
+        } else {
+            // 2. Log if token is missing
+            console.log("No token in Authorization header"); 
+            return res.status(401).json({ error: "Unauthorized - No Token Provided" });
+        }
 
-		if (!decoded) {
-			return res.status(401).json({ error: "Unauthorized - Invalid Token" });
-		}
+        if (!token) {
+            return res.status(401).json({ error: "Unauthorized - No Token" });
+        }
 
-		const user = await User.findById(decoded._id).select("-password");
-		// console.log(user)
-		if (!user) {
-			return res.status(404).json({ error: "User not found" });
-		}
+        const decoded = jwt.verify(token, process.env.SECRET);
 
-		req.user = user;
+        if (!decoded) {
+            return res.status(401).json({ error: "Unauthorized - Invalid Token" });
+        }
 
-		next();
-	} catch (error) {
-		console.log("Error in protectRoute middleware: ", error.message);
-		res.status(500).json({ error: "Internal server error" });
-	}
+        const user = await User.findById(decoded._id).select("-password");
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        // 3. Log any specific error during verification
+        console.log("Error in protectRoute middleware: ", error.message);
+        res.status(401).json({ error: "Unauthorized - Invalid Token" });
+    }
 };
 
 export default protectRoute;
